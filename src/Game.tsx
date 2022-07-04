@@ -1,11 +1,84 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Square from './Square';
 
 const INITIAL_GAME_STATE = ["", "", "", "", "", "", "", "", ""];
+const INITIAL_SCORES = { X: 0, O: 0 }
+const WINNING_COMBOS = [
+  [0, 1, 2],
+  [3, 4, 5],
+  [6, 7, 8],
+  [0, 3, 6],
+  [1, 4, 7],
+  [2, 5, 8],
+  [0, 4, 8],
+  [2, 4, 6]
+]
 
 function Game() {
   const [gameState, setGameState] = useState(INITIAL_GAME_STATE)
   const [currentPlayer, setCurrentPlayer] = useState('X')
+  const [scores, setScores] = useState(INITIAL_SCORES)
+
+  // similar to vue calculate
+  // every time gameState changes, check for winner and change player
+  useEffect(() => {
+    checkForWinner()
+  }, [gameState])
+
+  const resetboard = () => setGameState(INITIAL_GAME_STATE);
+
+  const handleWin = () => {
+    window.alert(`Congrats player ${currentPlayer}! You are the winner!`)
+
+    resetboard()
+  }
+
+  const handleDraw = () => {
+    window.alert(`The game ended in a draw`)
+
+    resetboard()
+  }
+
+  const checkForWinner = () => {
+    let roundWon = false
+
+    // loop and check for winning combination
+    for (let i = 0; i < WINNING_COMBOS.length; i++) {
+      const winCombo = WINNING_COMBOS[i];
+
+      let a = gameState[winCombo[0]]
+      let b = gameState[winCombo[1]]
+      let c = gameState[winCombo[2]]
+
+      // continue if cell is empty
+      if ([a, b, c].includes("")) {
+        continue;
+      }
+
+      // check if all a,b,c have the same value, if yes, break loop
+      if (a === b && b === c) {
+        roundWon = true
+        break;
+      }
+    }
+
+    if (roundWon) {
+      setTimeout(() => handleWin(), 500)
+      return;
+    }
+
+    // if gamestate doesn't includes any empty cell
+    if (!gameState.includes("")) {
+      setTimeout(() => handleDraw(), 500)
+      return
+    }
+
+    changePlayer();
+  }
+
+  const changePlayer = () => {
+    setCurrentPlayer(currentPlayer === 'X' ? 'O' : 'X')
+  }
 
   const handleCellClick = (event: any) => {
     // console.log("cell clicked!", event.target.getAttribute('data-cell-index'))
@@ -20,7 +93,7 @@ function Game() {
 
     // close the gameState array
     const newValues = [...gameState]
-    // set X to the cell
+    // set X/O to the cell
     newValues[cellIndex] = currentPlayer
     // reassign gameState
     setGameState(newValues)
