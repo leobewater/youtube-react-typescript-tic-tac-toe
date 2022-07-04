@@ -1,5 +1,5 @@
 import { useState } from 'react'
-
+import Square from './Square';
 const INITIAL_GAME_STATE = ["X", "O", "X", "", "", "", "", "", ""];
 
 function Game() {
@@ -11,7 +11,7 @@ function Game() {
       <div>
         <div className='grid grid-cols-3 gap-3 mx-auto w-96'>
           {gameState.map((player, index) => (
-            <div key={index} className="h-36 border-solid border-4 border-slate-200 font-display text-7xl text-center flex justify-center items-center cursor-pointer">{player}</div>
+            <Square key={index}>{player}</Square>
           ))}
         </div>
         <div>Scores Go Here</div>
