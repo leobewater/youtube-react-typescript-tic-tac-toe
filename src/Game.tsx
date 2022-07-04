@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react'
 import Square from './Square';
 
+type Scores = {
+  [key: string]: number
+}
+
 const INITIAL_GAME_STATE = ["", "", "", "", "", "", "", "", ""];
-const INITIAL_SCORES = { X: 0, O: 0 }
+const INITIAL_SCORES: Scores = { X: 0, O: 0 }
 const WINNING_COMBOS = [
   [0, 1, 2],
   [3, 4, 5],
@@ -16,8 +20,16 @@ const WINNING_COMBOS = [
 
 function Game() {
   const [gameState, setGameState] = useState(INITIAL_GAME_STATE)
-  const [currentPlayer, setCurrentPlayer] = useState('X')
+  const [currentPlayer, setCurrentPlayer] = useState('X') // X | O
   const [scores, setScores] = useState(INITIAL_SCORES)
+
+  // get saved score from localstorage
+  useEffect(() => {
+    const storedScores = localStorage.getItem('scores')
+    if (storedScores) {
+      setScores(JSON.parse(storedScores))
+    }
+  }, [])
 
   // similar to vue calculate
   // every time gameState changes, check for winner and change player
@@ -29,6 +41,14 @@ function Game() {
 
   const handleWin = () => {
     window.alert(`Congrats player ${currentPlayer}! You are the winner!`)
+
+    // set player's score
+    const newScores = { ...scores }
+    newScores[currentPlayer] = scores[currentPlayer] + 1
+    setScores(newScores)
+
+    // save scores to localstorage
+    localStorage.setItem('scores', JSON.stringify(newScores))
 
     resetboard()
   }
@@ -108,7 +128,11 @@ function Game() {
             <Square key={index} onClick={handleCellClick} {...{ index, player }} />
           ))}
         </div>
-        <div>Scores Go Here</div>
+        <div className='mx-auto w-96 text-2xl text-serif'>
+          <p className='text-white mt-5'>Next Player: <span>{currentPlayer}</span></p>
+          <p className='text-white mt-5'>Player X wins: <span>{scores['X']}</span></p>
+          <p className='text-white mt-5'>Player O wins: <span>{scores['O']}</span></p>
+        </div>
       </div>
     </div>
   )
